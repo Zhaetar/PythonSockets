@@ -1,22 +1,25 @@
 #! python2
 
-# Informacoes do socket
+# Imports
 import socket
+import hashlib
+
+# Informacoes do socket
 HOST = 'localhost'     # Endereco IP do Servidor
 PORT = 5000            # Porta que o Servidor esta
 
-# Informacoes de login
-contaComum = hash('user') # Conta do usuario
-contaAdmin = hash('admin') # Conta do admin
-senhaComum = hash(123) # Senha do usuario
-senhaAdmin = hash(124) # Senha do admin
+# Informacoes de login - comum
+contaComum = hashlib.md5('user').hexdigest() # Conta do usuario
+senhaComum = hashlib.md5('123').hexdigest() # Senha do usuario
 
-# Inicia a conexao 
+# Informacoes de login - admin
+contaAdmin = hashlib.md5('admin').hexdigest() # Conta do admin
+senhaAdmin = hashlib.md5('124').hexdigest() # Senha do admin
 
 # Funcao responsavel por receber a mensagem
 def receiveMessage(con):
-	msg =  con.recv (1024)
-	return int(msg)
+	msg = con.recv (1024)
+	return msg
 
 # Funcao responsavel por verificar se a senha funciona
 def checkPassword(password, type):

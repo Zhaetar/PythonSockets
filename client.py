@@ -1,7 +1,10 @@
 #! python2
 
-# Informacoes do socket
+# Imports
 import socket
+import hashlib
+
+# Informacoes do socket
 HOST = 'localhost'     # Endereco IP do Servidor
 PORT = 5000            # Porta que o Servidor esta
 
@@ -10,9 +13,10 @@ tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 dest = (HOST, PORT)
 tcp.connect(dest)
 
+msg = str(raw_input().encode("utf").strip())
 # Inicia a conexao
-msg = hash(raw_input())
 while msg <> '\x18':
-    tcp.send(str(msg))
-    msg = raw_input()
+	msg = hashlib.md5(msg).hexdigest()
+	tcp.send(msg)
+	msg = raw_input()
 tcp.close()
