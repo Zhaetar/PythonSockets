@@ -3,6 +3,7 @@
 # Imports
 import socket
 import hashlib
+import sys
 from game import Game
 
 # Informacoes do socket
@@ -17,46 +18,59 @@ senhaComum = hashlib.md5('123').hexdigest() # Senha do usuario
 contaAdmin = hashlib.md5('admin').hexdigest() # Conta do admin
 senhaAdmin = hashlib.md5('124').hexdigest() # Senha do admin
 
+# Mensagem que retornara para o usuario
+feedback = ""
+
 # Funcao responsavel por receber a mensagem
 def receiveMessage(con):
-	msg = con.recv (1024)
+	try:
+		msg = con.recv (1024)
+	except socket.timeout:
+		print 'Falha ao enviar mensagem'
+	
 	if (msg):
 		return msg
 	else: 
 		return False
 
+# Funcao responsavel por enviar a mensagem
+def sendMessage(message):
+	try:
+		con.send(message)
+	except socket.timeout:
+		print 'Falha ao enviar mensagem'
+
 # Funcao responsavel por verificar se a senha funciona
 def checkPassword(password, type):
 	if (type == 1):
 		if (password == senhaComum):
-			print 'Senha correta! Bem vindo Sylveon'
+			sendMessage('Senha correta! Bem vindo Sylveon!')
 			return True
 		else:
-			print 'Senha incorreta! Finalizando...'
+			sendMessage('Senha incorreta! Finalizando...')
 			return False
 	else:
 		if (password == senhaAdmin):
-			print 'Senha correta! Bem vindo Vaporeon!'
+			sendMessage('Senha correta! Bem vindo usuario administrativo Vaporeon!')
 			return True
 		else:
-			print 'Senha incorreta! Finalizando...'
+			sendMessage('Senha incorreta! Finalizando...')
 			return False
-
 # Funcao responsavel pelo login
 def checkLogin(con):
 	msg = receiveMessage(con)
 	if not msg: 
 		return False
 	if (msg == contaComum):
-		print 'Logando como usuario comum. Por favor digite sua senha: '
+		sendMessage('Logando como usuario comum. Por favor digite sua senha: ')
 		msg = receiveMessage(con)
 		return checkPassword(msg, 1)
 	if (msg == contaAdmin):
-		print 'Logando como administrador. Por favor digite sua senha: '
+		sendMessage('Logando como administrador. Por favor digite sua senha: ')
 		msg = receiveMessage(con)
 		return checkPassword(msg, 2)
 	else:
-		print 'Usuario nao encontrado. Finalizando conexao.'
+		sendMessage('Usuario nao encontrado. Finalizando conexao.')
 		return False
 
 # Dados da conexao
@@ -72,10 +86,14 @@ while True:
 
 	game = Game()
 	gameRunning = True
-	while gameRunning:
-		if (checkLogin(con)):
+
+	sendMessage('Bem vindo ao Moongrove! Digite o nome de usuario para continuar.')
+	if (checkLogin(con)):
+		while gameRunning:
 			stepChoice = receiveMessage(con)
 			if (gameRunning):
 				gameRunning = game.execute(stepChoice)
+				sendMessage(game.getMessage())
 	print 'Finalizando conexao do cliente', cliente
 	con.close()
+	sys.exit()
