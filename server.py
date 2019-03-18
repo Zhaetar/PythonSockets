@@ -44,18 +44,19 @@ def sendMessage(message):
 def checkPassword(password, type):
 	if (type == 1):
 		if (password == senhaComum):
-			sendMessage('Senha correta! Bem vindo Sylveon!')
+			sendMessage('Senha correta! Bem vindo Sylveon! Digite 1 para continuar.')
 			return True
 		else:
-			sendMessage('Senha incorreta! Finalizando...')
+			sendMessage('Senha incorreta!')
 			return False
 	else:
 		if (password == senhaAdmin):
-			sendMessage('Senha correta! Bem vindo usuario administrativo Vaporeon!')
+			sendMessage('Senha correta! Bem vindo usuario administrativo Vaporeon! Digite 1 para continuar.')
 			return True
 		else:
-			sendMessage('Senha incorreta! Finalizando...')
+			sendMessage('Senha incorreta!')
 			return False
+
 # Funcao responsavel pelo login
 def checkLogin(con):
 	msg = receiveMessage(con)
@@ -70,7 +71,7 @@ def checkLogin(con):
 		msg = receiveMessage(con)
 		return checkPassword(msg, 2)
 	else:
-		sendMessage('Usuario nao encontrado. Finalizando conexao.')
+		sendMessage('Usuario nao encontrado. Tente novamente!')
 		return False
 
 # Dados da conexao
@@ -86,14 +87,18 @@ while True:
 
 	game = Game()
 	gameRunning = True
+	loggedIn = False
 
-	sendMessage('Bem vindo ao Moongrove! Digite o nome de usuario para continuar.')
-	if (checkLogin(con)):
-		while gameRunning:
-			stepChoice = receiveMessage(con)
-			if (gameRunning):
-				gameRunning = game.execute(stepChoice)
-				sendMessage(game.getMessage())
+	while (not loggedIn):
+		sendMessage('Bem vindo ao Moongrove! Digite o nome de usuario para continuar.')
+		loggedIn = checkLogin(con)
+	
+	while gameRunning:
+		stepChoice = receiveMessage(con)
+		if (gameRunning):
+			gameRunning = game.execute(stepChoice)
+			sendMessage(game.getMessage())
+
 	print 'Finalizando conexao do cliente', cliente
 	con.close()
 	sys.exit()

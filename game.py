@@ -20,6 +20,7 @@ class Game:
 	# Opcao 2 do evento
 	option2 = [1, ""]
 
+	# Funcao responsavel por enviar a mensagem para o servidor
 	def showMessage(self, exit):
 		string = '------------- \n{}\n-------------\n'
 		string += '\n[Digite 1]: {}'
@@ -29,14 +30,21 @@ class Game:
 
 		return not exit
 
+	# Executa o jogo, com a escolha do evento anterior
 	def execute(self, stepChoice):
 		if (self.returnStep(stepChoice)):
 			return True
 
-		#colocar fora da func
-		switch = {1:self.enteredTheForest,2:self.leftTheForest,3:self.burnedTheForest}
+		# Eventos
+		switch = {
+			1: self.enteredTheForest,
+			2: self.leftTheForest,
+			3: self.burnedTheForest
+		}
+
 		return switch[self.currentStep]()
 
+	# Valida a escolha do evento
 	def returnStep(self, stepChoice):
 		if (stepChoice == hashlib.md5('1').hexdigest()):
 			self.currentStep = self.option1[0]
@@ -46,9 +54,11 @@ class Game:
 			self.messageToClient = '-------------\nOpcao invalida. Tente novamente!\n-------------'
 			return True
 
+	# Retorna a mensagem que ira para o usuario. Utilizada no server.py
 	def getMessage(self):
 		return self.messageToClient
 
+	# Eventos
 	def enteredTheForest(self):
 		self.message = 'Voce entrou na floresta'
 		self.option1 = [2, 'Sair da floresta']
