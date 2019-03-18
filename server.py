@@ -3,6 +3,7 @@
 # Imports
 import socket
 import hashlib
+from game import Game
 
 # Informacoes do socket
 HOST = 'localhost'     # Endereco IP do Servidor
@@ -19,7 +20,10 @@ senhaAdmin = hashlib.md5('124').hexdigest() # Senha do admin
 # Funcao responsavel por receber a mensagem
 def receiveMessage(con):
 	msg = con.recv (1024)
-	return msg
+	if (msg):
+		return msg
+	else: 
+		return False
 
 # Funcao responsavel por verificar se a senha funciona
 def checkPassword(password, type):
@@ -32,7 +36,7 @@ def checkPassword(password, type):
 			return False
 	else:
 		if (password == senhaAdmin):
-			print 'Senha incorreta! Bem vindo Vaporeon!'
+			print 'Senha correta! Bem vindo Vaporeon!'
 			return True
 		else:
 			print 'Senha incorreta! Finalizando...'
@@ -48,12 +52,13 @@ def checkLogin(con):
 		msg = receiveMessage(con)
 		return checkPassword(msg, 1)
 	if (msg == contaAdmin):
-		print 'Logando como administrador/ Por favor digite sua senha: '
+		print 'Logando como administrador. Por favor digite sua senha: '
 		msg = receiveMessage(con)
 		return checkPassword(msg, 2)
 	else:
 		print 'Usuario nao encontrado. Finalizando conexao.'
 		return False
+
 # Dados da conexao
 tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 orig = (HOST, PORT)
@@ -62,10 +67,15 @@ tcp.listen(1)
 
 # Inicia a conexao
 while True:
-    con, cliente = tcp.accept()
-    print 'Concetado por', cliente
-    conexao = True
-    while conexao:
-    	conexao = checkLogin(con)   
-    print 'Finalizando conexao do cliente', cliente
-    con.close()
+	con, cliente = tcp.accept()
+	print 'Concetado por', cliente
+
+	game = Game()
+	gameRunning = True
+	while gameRunning:
+		if (checkLogin(con)):
+			stepChoice = receiveMessage(con)
+			if (gameRunning):
+				gameRunning = game.execute(stepChoice)
+	print 'Finalizando conexao do cliente', cliente
+	con.close()
